@@ -28,6 +28,7 @@ import {
 	MediaReplaceFlow,
 	store as blockEditorStore,
 	BlockAlignmentControl,
+	__experimentalUseBorderProps as useBorderProps,
 } from '@wordpress/block-editor';
 import { useEffect, useState, useRef } from '@wordpress/element';
 import { __, sprintf, isRTL } from '@wordpress/i18n';
@@ -59,7 +60,18 @@ function getFilename( url ) {
 
 export default function Image( {
 	temporaryURL,
-	attributes: {
+	attributes,
+	setAttributes,
+	isSelected,
+	insertBlocksAfter,
+	onReplace,
+	onSelectImage,
+	onSelectURL,
+	onUploadError,
+	containerRef,
+	clientId,
+} ) {
+	const {
 		url = '',
 		alt,
 		caption,
@@ -74,17 +86,7 @@ export default function Image( {
 		height,
 		linkTarget,
 		sizeSlug,
-	},
-	setAttributes,
-	isSelected,
-	insertBlocksAfter,
-	onReplace,
-	onSelectImage,
-	onSelectURL,
-	onUploadError,
-	containerRef,
-	clientId,
-} ) {
+	} = attributes;
 	const captionRef = useRef();
 	const prevUrl = usePrevious( url );
 	const { image, multiImageSelection } = useSelect(
@@ -411,6 +413,8 @@ export default function Image( {
 		defaultedAlt = __( 'This image has an empty alt attribute' );
 	}
 
+	const borderProps = useBorderProps( attributes );
+
 	let img = (
 		// Disable reason: Image itself is not meant to be interactive, but
 		// should direct focus to block.
@@ -428,6 +432,8 @@ export default function Image( {
 						] )
 					);
 				} }
+				className={ borderProps.className }
+				style={ borderProps.style }
 			/>
 			{ temporaryURL && <Spinner /> }
 		</>
@@ -449,6 +455,7 @@ export default function Image( {
 	if ( canEditImage && isEditingImage ) {
 		img = (
 			<ImageEditor
+				borderProps={ borderProps }
 				url={ url }
 				width={ width }
 				height={ height }
