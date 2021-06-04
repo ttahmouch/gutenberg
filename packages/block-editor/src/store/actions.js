@@ -506,6 +506,13 @@ export function* moveBlocksToPosition(
 		fromRootClientId
 	);
 
+	const canRemoveBlocks = yield controls.select(
+		blockEditorStoreName,
+		'canRemoveBlocks',
+		clientIds,
+		fromRootClientId
+	);
+
 	// If one of the blocks is locked or the parent is locked, we cannot move any block.
 	if ( ! canMoveBlocks ) {
 		return;
@@ -522,6 +529,12 @@ export function* moveBlocksToPosition(
 	// If moving inside the same root block the move is always possible.
 	if ( fromRootClientId === toRootClientId ) {
 		yield action;
+		return;
+	}
+
+	// If we're moving to another block, it means we're deleting blocks from
+	// the original block, so we need to check if removing is possible.
+	if ( ! canRemoveBlocks ) {
 		return;
 	}
 
