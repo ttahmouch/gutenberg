@@ -18,16 +18,23 @@ import { useSetting } from '../editor/utils';
 
 export function useHasDimensionsPanel( context ) {
 	const hasHeight = useHasHeight( context );
+	const hasWidth = useHasWidth( context );
 	const hasPadding = useHasPadding( context );
 	const hasMargin = useHasMargin( context );
 
-	return hasHeight || hasPadding || hasMargin;
+	return hasHeight || hasWidth || hasPadding || hasMargin;
 }
 
 function useHasHeight( { name, supports } ) {
 	const settings = useSetting( 'dimensions.customHeight', name );
 
 	return settings && supports.includes( 'height' );
+}
+
+function useHasWidth( { name, supports } ) {
+	const settings = useSetting( 'dimensions.customWidth', name );
+
+	return settings && supports.includes( 'width' );
 }
 
 function useHasPadding( { name, supports } ) {
@@ -73,6 +80,7 @@ function splitStyleValue( value ) {
 export default function DimensionsPanel( { context, getStyle, setStyle } ) {
 	const { name } = context;
 	const showHeightControl = useHasHeight( context );
+	const showWidthControl = useHasWidth( context );
 	const showPaddingControl = useHasPadding( context );
 	const showMarginControl = useHasMargin( context );
 	const units = useCustomUnits( {
@@ -81,6 +89,7 @@ export default function DimensionsPanel( { context, getStyle, setStyle } ) {
 			'px',
 			'em',
 			'rem',
+			'vh',
 			'vw',
 		],
 	} );
@@ -90,6 +99,12 @@ export default function DimensionsPanel( { context, getStyle, setStyle } ) {
 	const setHeightValue = ( next ) => setStyle( name, 'height', next );
 	const resetHeightValue = () => setHeightValue( undefined );
 	const hasHeightValue = () => !! heightValue;
+
+	// Width.
+	const widthValue = getStyle( name, 'width' );
+	const setWidthValue = ( next ) => setStyle( name, 'width', next );
+	const resetWidthValue = () => setWidthValue( undefined );
+	const hasWidthValue = () => !! widthValue;
 
 	// Padding.
 	const paddingValues = splitStyleValue( getStyle( name, 'padding' ) );
@@ -133,6 +148,18 @@ export default function DimensionsPanel( { context, getStyle, setStyle } ) {
 					hasValue={ hasHeightValue }
 					onChange={ setHeightValue }
 					reset={ resetHeightValue }
+					isShownByDefault={ true }
+					units={ units }
+					min={ 0 }
+				/>
+			) }
+			{ showWidthControl && (
+				<UnitControl
+					label={ __( 'Width' ) }
+					value={ widthValue }
+					hasValue={ hasWidthValue }
+					onChange={ setWidthValue }
+					reset={ resetWidthValue }
 					isShownByDefault={ true }
 					units={ units }
 					min={ 0 }

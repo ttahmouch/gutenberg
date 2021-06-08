@@ -34,6 +34,13 @@ import {
 	resetPadding,
 	useIsPaddingDisabled,
 } from './padding';
+import {
+	WidthEdit,
+	hasWidthSupport,
+	hasWidthValue,
+	resetWidth,
+	useIsWidthDisabled,
+} from './width';
 
 export const DIMENSIONS_SUPPORT_KEY = '__experimentalDimensions';
 export const SPACING_SUPPORT_KEY = 'spacing';
@@ -48,6 +55,7 @@ export function DimensionsPanel( props ) {
 	const isPaddingDisabled = useIsPaddingDisabled( props );
 	const isMarginDisabled = useIsMarginDisabled( props );
 	const isHeightDisabled = useIsHeightDisabled( props );
+	const isWidthDisabled = useIsWidthDisabled( props );
 	const isDisabled = useIsDimensionsDisabled( props );
 	const isSupported = hasDimensionsSupport( props.name );
 
@@ -75,6 +83,7 @@ export function DimensionsPanel( props ) {
 				dimensions: {
 					...style?.dimensions,
 					height: undefined,
+					width: undefined,
 				},
 				spacing: {
 					...style?.spacing,
@@ -100,6 +109,16 @@ export function DimensionsPanel( props ) {
 						isShownByDefault={ defaultDimensionsControls?.height }
 					>
 						<HeightEdit { ...props } />
+					</ProgressiveDisclosurePanelItem>
+				) }
+				{ ! isWidthDisabled && (
+					<ProgressiveDisclosurePanelItem
+						hasValue={ () => hasWidthValue( props ) }
+						label={ __( 'Width' ) }
+						onDeselect={ () => resetWidth( props ) }
+						isShownByDefault={ defaultDimensionsControls?.width }
+					>
+						<WidthEdit { ...props } />
 					</ProgressiveDisclosurePanelItem>
 				) }
 				{ ! isPaddingDisabled && (
@@ -141,6 +160,7 @@ export function hasDimensionsSupport( blockName ) {
 
 	return (
 		hasHeightSupport( blockName ) ||
+		hasWidthSupport( blockName ) ||
 		hasPaddingSupport( blockName ) ||
 		hasMarginSupport( blockName )
 	);
@@ -154,10 +174,11 @@ export function hasDimensionsSupport( blockName ) {
  */
 const useIsDimensionsDisabled = ( props = {} ) => {
 	const heightDisabled = useIsHeightDisabled( props );
+	const widthDisabled = useIsWidthDisabled( props );
 	const paddingDisabled = useIsPaddingDisabled( props );
 	const marginDisabled = useIsMarginDisabled( props );
 
-	return heightDisabled && paddingDisabled && marginDisabled;
+	return heightDisabled && widthDisabled && paddingDisabled && marginDisabled;
 };
 
 /**
