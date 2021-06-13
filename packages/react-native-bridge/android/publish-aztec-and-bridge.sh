@@ -4,14 +4,6 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 cd $DIR
 
-# 1. Check if the script is run from the gutenberg-mobile submodule
-PARENT_GIT_REPO_PATH=$(git rev-parse --show-superproject-working-tree)
-if [[ -z $PARENT_GIT_REPO_PATH ||
-    $(git -C $PARENT_GIT_REPO_PATH config --get remote.origin.url) != *"/gutenberg-mobile.git" ]]; then
-    echo "This script can only be used if the 'gutenberg' project is a submodule of the 'gutenberg-mobile' project"
-    exit 1
-fi
-
 # 2. Verify the version argument is passed. We use the same version for react-native-aztec and react-native-bridge libraries.
 VERSION=$1
 if [[ -z $VERSION ]]; then
