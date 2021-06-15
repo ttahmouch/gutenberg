@@ -13,7 +13,6 @@ if [[ -z $VERSION ]]; then
 fi
 
 # 3. Clean and copy the bundle
-./gradlew clean -q
 mkdir -p react-native-bridge/build/assets
 cp ../../../../bundle/android/App.js ./react-native-bridge/build/assets/index.android.bundle
 
