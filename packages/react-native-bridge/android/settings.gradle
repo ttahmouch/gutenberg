@@ -1,16 +1,14 @@
 rootProject.name = '@wordpress_react-native-bridge'
 
 include ':react-native-bridge'
-include ':@wordpress_react-native-aztec'
-project(':@wordpress_react-native-aztec').projectDir = new File(rootProject.projectDir, '../../react-native-aztec/android')
+include ':react-native-aztec'
+project(':react-native-aztec').projectDir = new File(rootProject.projectDir, '../../../packages/react-native-aztec/android')
 
 if (file("../../../node_modules").exists()) {
     include ':react-native-linear-gradient'
     project(':react-native-linear-gradient').projectDir = new File(rootProject.projectDir, '../../../node_modules/react-native-linear-gradient/android')
     include ':react-native-svg'
     project(':react-native-svg').projectDir = new File(rootProject.projectDir, '../../../node_modules/react-native-svg/android')
-    include ':react-native-aztec'
-    project(':react-native-aztec').projectDir = new File(rootProject.projectDir, '../../../packages/react-native-aztec/android')
     include ':react-native-video'
     project(':react-native-video').projectDir = new File(rootProject.projectDir, '../../../node_modules/react-native-video/android-exoplayer')
     include ':@react-native-community_slider'
