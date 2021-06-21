@@ -1,0 +1,151 @@
+/**
+ * External dependencies
+ */
+import classnames from 'classnames';
+
+/**
+ * WordPress dependencies
+ */
+import {
+	Button,
+	ButtonGroup,
+	RangeControl,
+	__experimentalUnitControl as UnitControl,
+} from '@wordpress/components';
+import { useState } from '@wordpress/element';
+import { edit } from '@wordpress/icons';
+import { __ } from '@wordpress/i18n';
+
+const DEFAULT_WIDTHS = [ '25%', '50%', '75%', '100%' ];
+const DEFAULT_UNIT = '%';
+const MIN_WIDTH = 0;
+
+/**
+ * Determines the CSS unit within the supplied width value.
+ *
+ * @param {string} value Value including CSS unit.
+ * @param {Array}  units Available CSS units to validate against.
+ *
+ * @return {string} CSS unit extracted from supplied value.
+ */
+const parseUnit = ( value, units ) => {
+	let unit = String( value )
+		.trim()
+		.match( /[\d.\-\+]*\s*(.*)/ )[ 1 ];
+
+	if ( ! unit ) {
+		return DEFAULT_UNIT;
+	}
+
+	unit = unit.toLowerCase();
+	unit = units.find( ( item ) => item.value === unit );
+
+	return unit?.value || DEFAULT_UNIT;
+};
+
+/**
+ * Width control that will display as either a simple `UnitControl` or a
+ * segmented control containing preset percentage widths. The segmented version
+ * contains a toggle to switch to a UnitControl and Slider for explicit control.
+ *
+ * @param  {Object} props Component props.
+ * @return {WPElement} Width control.
+ */
+export default function WidthControl( props ) {
+	const {
+		label = __( 'Width' ),
+		onChange,
+		units,
+		value,
+		isSegmentedControl = false,
+		min = MIN_WIDTH,
+		presetWidths = DEFAULT_WIDTHS,
+		withSlider = true,
+	} = props;
+
+	const hasCustomValue = value && ! presetWidths.includes( value );
+	const [ customView, setCustomView ] = useState( hasCustomValue );
+	const currentUnit = parseUnit( value, units );
+
+	// Unless segmented control is desired return a normal UnitControl.
+	if ( ! isSegmentedControl ) {
+		return (
+			<UnitControl
+				label={ label }
+				min={ min }
+				unit={ currentUnit }
+				{ ...props }
+			/>
+		);
+	}
+
+	const toggleCustomView = () => {
+		setCustomView( ! customView );
+	};
+
+	const handleSliderChange = ( newWidth ) => {
+		onChange( `${ newWidth }${ currentUnit }` );
+	};
+
+	const handlePresetChange = ( selectedValue ) => {
+		const newWidth = selectedValue === value ? undefined : selectedValue;
+		onChange( newWidth );
+	};
+
+	// Renders unit and range controls allowing custom width values to be set.
+	const renderCustomView = () => {
+		const parsedValue = value && parseFloat( value, 10 );
+		const max = currentUnit === '%' ? 100 : Math.max( 100, parsedValue );
+
+		return (
+			<>
+				<UnitControl min={ min } unit={ currentUnit } { ...props } />
+				{ withSlider && (
+					<RangeControl
+						initialPosition={ 100 }
+						min={ min }
+						max={ max }
+						onChange={ handleSliderChange }
+						value={ parsedValue }
+						withInputField={ false }
+					/>
+				) }
+			</>
+		);
+	};
+
+	// Renders the preset widths as a segmented control for quick selection.
+	const renderPresetView = () => (
+		<ButtonGroup aria-label={ __( 'Button width' ) }>
+			{ presetWidths.map( ( width ) => (
+				<Button
+					key={ width }
+					isSmall
+					variant={ value === width ? 'primary' : undefined }
+					onClick={ () => handlePresetChange( width ) }
+				>
+					{ width }
+				</Button>
+			) ) }
+		</ButtonGroup>
+	);
+
+	const wrapperClasses = classnames( 'components-width-control__wrapper', {
+		'with-slider': withSlider,
+	} );
+
+	return (
+		<fieldset className="components-width-control is-segmented">
+			<legend>{ label }</legend>
+			<div className={ wrapperClasses }>
+				{ customView ? renderCustomView() : renderPresetView() }
+				<Button
+					icon={ edit }
+					isSmall
+					isPressed={ customView }
+					onClick={ toggleCustomView }
+				/>
+			</div>
+		</fieldset>
+	);
+}

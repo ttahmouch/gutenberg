@@ -1,0 +1,39 @@
+.components-width-control.is-segmented {
+	legend {
+		margin-bottom: $grid-unit-10;
+	}
+
+	.components-width-control__wrapper {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+
+		&:not(.with-slider) {
+			.components-unit-control-wrapper {
+				max-width: 80px;
+			}
+		}
+	}
+
+	.components-unit-control-wrapper {
+		flex: 1;
+		margin-right: $grid-unit-10;
+	}
+
+	.components-range-control {
+		flex: 1;
+		margin-bottom: 0;
+
+		.components-base-control__field {
+			margin-bottom: 0;
+			height: 30px;
+		}
+	}
+
+	.components-button.is-small.has-icon:not(.has-text) {
+		margin-left: $grid-unit-20;
+		min-width: 30px;
+		height: 30px;
+		padding: 0 4px;
+	}
+}

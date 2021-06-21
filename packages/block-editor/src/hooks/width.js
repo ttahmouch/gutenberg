@@ -2,15 +2,12 @@
  * WordPress dependencies
  */
 import { getBlockSupport } from '@wordpress/blocks';
-import {
-	__experimentalUseCustomUnits as useCustomUnits,
-	__experimentalUnitControl as UnitControl,
-} from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { __experimentalUseCustomUnits as useCustomUnits } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
+import WidthControl from '../components/width-control';
 import useSetting from '../components/use-setting';
 import { DIMENSIONS_SUPPORT_KEY } from './dimensions';
 import { cleanEmptyObject } from './utils';
@@ -34,6 +31,18 @@ export function hasWidthSupport( blockType ) {
  */
 export function hasWidthValue( props ) {
 	return props.attributes.style?.dimensions?.width !== undefined;
+}
+
+/**
+ * Checks whether the segmented width control was opted into via the block's
+ * support configuration.
+ *
+ * @param {string|Object} blockType Block name or Block Type object.
+ * @return {boolean} Whether width control should display as segmented control.
+ */
+export function useIsSegmentedControl( blockType ) {
+	const support = getBlockSupport( blockType, DIMENSIONS_SUPPORT_KEY );
+	return support?.width === 'segmented';
 }
 
 /**
@@ -79,9 +88,11 @@ export function useIsWidthDisabled( { name: blockName } = {} ) {
 export function WidthEdit( props ) {
 	const {
 		attributes: { style },
+		name,
 		setAttributes,
 	} = props;
 
+	const isSegmentedControl = useIsSegmentedControl( name );
 	const units = useCustomUnits( {
 		availableUnits: useSetting( 'dimensions.units' ) || [
 			'%',
@@ -110,12 +121,11 @@ export function WidthEdit( props ) {
 	};
 
 	return (
-		<UnitControl
-			label={ __( 'Width' ) }
+		<WidthControl
 			value={ style?.dimensions?.width }
 			units={ units }
 			onChange={ onChange }
-			min={ 0 }
+			isSegmentedControl={ isSegmentedControl }
 		/>
 	);
 }

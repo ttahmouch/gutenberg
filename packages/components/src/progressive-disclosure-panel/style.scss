@@ -38,7 +38,8 @@
 		max-width: 100%;
 	}
 
-	> [id*="inspector-box-control"] {
+	> [id*="inspector-box-control"],
+	.components-width-control.is-segmented {
 		grid-column: span 2;
 	}
 }
