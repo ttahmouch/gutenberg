@@ -6,7 +6,7 @@ import {
 	ButtonGroup,
 	__experimentalUnitControl as UnitControl,
 } from '@wordpress/components';
-import { useState } from '@wordpress/element';
+import { useEffect, useRef, useState } from '@wordpress/element';
 import { edit } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 
@@ -56,9 +56,17 @@ export default function WidthControl( props ) {
 		presetWidths = DEFAULT_WIDTHS,
 	} = props;
 
+	const ref = useRef();
 	const hasCustomValue = value && ! presetWidths.includes( value );
 	const [ customView, setCustomView ] = useState( hasCustomValue );
 	const currentUnit = parseUnit( value, units );
+
+	// When switching to the custom view, move focus to the UnitControl.
+	useEffect( () => {
+		if ( customView && ref.current ) {
+			ref.current.focus();
+		}
+	}, [ customView ] );
 
 	// Unless segmented control is desired return a normal UnitControl.
 	if ( ! isSegmentedControl ) {
@@ -82,7 +90,12 @@ export default function WidthControl( props ) {
 	};
 
 	const renderCustomView = () => (
-		<UnitControl min={ min } unit={ currentUnit } { ...props } />
+		<UnitControl
+			ref={ ref }
+			min={ min }
+			unit={ currentUnit }
+			{ ...props }
+		/>
 	);
 
 	const renderPresetView = () => (
