@@ -70,6 +70,7 @@ export default function HeadingLevelDropdown( { selectedLevel, onChange } ) {
 				<Toolbar
 					className="block-library-heading-level-toolbar"
 					label={ __( 'Change heading level' ) }
+					orientation="vertical"
 				>
 					<ToolbarGroup
 						isCollapsed={ false }
