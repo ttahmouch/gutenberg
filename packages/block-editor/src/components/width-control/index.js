@@ -1,15 +1,9 @@
 /**
- * External dependencies
- */
-import classnames from 'classnames';
-
-/**
  * WordPress dependencies
  */
 import {
 	Button,
 	ButtonGroup,
-	RangeControl,
 	__experimentalUnitControl as UnitControl,
 } from '@wordpress/components';
 import { useState } from '@wordpress/element';
@@ -60,7 +54,6 @@ export default function WidthControl( props ) {
 		isSegmentedControl = false,
 		min = MIN_WIDTH,
 		presetWidths = DEFAULT_WIDTHS,
-		withSlider = true,
 	} = props;
 
 	const hasCustomValue = value && ! presetWidths.includes( value );
@@ -83,38 +76,15 @@ export default function WidthControl( props ) {
 		setCustomView( ! customView );
 	};
 
-	const handleSliderChange = ( newWidth ) => {
-		onChange( `${ newWidth }${ currentUnit }` );
-	};
-
 	const handlePresetChange = ( selectedValue ) => {
 		const newWidth = selectedValue === value ? undefined : selectedValue;
 		onChange( newWidth );
 	};
 
-	// Renders unit and range controls allowing custom width values to be set.
-	const renderCustomView = () => {
-		const parsedValue = value && parseFloat( value, 10 );
-		const max = currentUnit === '%' ? 100 : Math.max( 100, parsedValue );
+	const renderCustomView = () => (
+		<UnitControl min={ min } unit={ currentUnit } { ...props } />
+	);
 
-		return (
-			<>
-				<UnitControl min={ min } unit={ currentUnit } { ...props } />
-				{ withSlider && (
-					<RangeControl
-						initialPosition={ 100 }
-						min={ min }
-						max={ max }
-						onChange={ handleSliderChange }
-						value={ parsedValue }
-						withInputField={ false }
-					/>
-				) }
-			</>
-		);
-	};
-
-	// Renders the preset widths as a segmented control for quick selection.
 	const renderPresetView = () => (
 		<ButtonGroup aria-label={ __( 'Button width' ) }>
 			{ presetWidths.map( ( width ) => (
@@ -130,14 +100,10 @@ export default function WidthControl( props ) {
 		</ButtonGroup>
 	);
 
-	const wrapperClasses = classnames( 'components-width-control__wrapper', {
-		'with-slider': withSlider,
-	} );
-
 	return (
 		<fieldset className="components-width-control is-segmented">
 			<legend>{ label }</legend>
-			<div className={ wrapperClasses }>
+			<div className="components-width-control__wrapper">
 				{ customView ? renderCustomView() : renderPresetView() }
 				<Button
 					icon={ edit }
