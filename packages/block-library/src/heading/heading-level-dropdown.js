@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { DropdownMenu } from '@wordpress/components';
+import { ToolbarDropdownMenu } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 
 /**
@@ -38,7 +38,7 @@ const POPOVER_PROPS = {
  */
 export default function HeadingLevelDropdown( { selectedLevel, onChange } ) {
 	return (
-		<DropdownMenu
+		<ToolbarDropdownMenu
 			popoverProps={ POPOVER_PROPS }
 			icon={ <HeadingLevelIcon level={ selectedLevel } /> }
 			label={ __( 'Change heading level' ) }
