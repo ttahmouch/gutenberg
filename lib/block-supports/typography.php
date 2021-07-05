@@ -117,7 +117,7 @@ function gutenberg_apply_typography_support( $block_type, $block_attributes ) {
 				$font_family_slug = substr( $font_family_custom, $index_to_splice );
 				$classes[]        = sprintf( 'has-%s-font-family', $font_family_slug );
 			} else {
-				$styles[] = sprintf( 'font-family: %s', $font_family_custom );
+				$styles[] = sprintf( 'font-family: %s;', $font_family_custom );
 			}
 		}
 	}
