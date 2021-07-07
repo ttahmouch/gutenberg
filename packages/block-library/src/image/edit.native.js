@@ -27,7 +27,7 @@ import {
 	LinkSettingsNavigation,
 	BottomSheet,
 	BottomSheetTextControl,
-	ExternalLink,
+	HelpText,
 	Badge,
 } from '@wordpress/components';
 import {
@@ -416,19 +416,17 @@ export class ImageEdit extends Component {
 				placeholder={ __( 'Add alt text' ) }
 				label={ __( 'Alt Text' ) }
 				icon={ textColor }
-				footerNote={
-					<>
+				help={
+					<HelpText
+						url={
+							'https://www.w3.org/WAI/tutorials/images/decision-tree/'
+						}
+						moreLinkText={ __( 'What is alt text?' ) }
+					>
 						{ __(
 							'Describe the purpose of the image. Leave empty if the image is purely decorative. '
 						) }
-						<ExternalLink
-							href={
-								'https://www.w3.org/WAI/tutorials/images/decision-tree/'
-							}
-						>
-							{ __( 'What is alt text?' ) }
-						</ExternalLink>
-					</>
+					</HelpText>
 				}
 			/>
 		);
