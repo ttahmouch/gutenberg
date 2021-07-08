@@ -12,8 +12,7 @@ import HeadingLevelIcon from './heading-level-icon';
 const HEADING_LEVELS = [ 1, 2, 3, 4, 5, 6 ];
 
 const POPOVER_PROPS = {
-	className:
-		'block-library-heading-level-dropdown block-library-heading-level-menu-popover',
+	className: 'block-library-heading-level-dropdown',
 };
 
 /** @typedef {import('@wordpress/element').WPComponent} WPComponent */
