@@ -5,12 +5,9 @@
 	}
 }
 
-.block-library-heading-level-menu-popover {
-	.components-dropdown-menu__menu,
-	.components-menu-item__button {
-		width: auto;
-	}
-	.components-popover__content {
-		min-width: auto;
-	}
+// @todo: in order to move this to the DropdownMenu component, and get rid
+// of the "!important"we would have make it possible to toggle the min-width property
+// set in packages/components/src/dropdown-menu/style.scss
+.components-popover__content {
+	min-width: auto !important;
 }
