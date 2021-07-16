@@ -107,7 +107,11 @@ export default function useBlockDropZone( {
 
 	const onBlockDrop = useOnBlockDrop( targetRootClientId, targetBlockIndex );
 	const throttled = useThrottle(
-		useCallback( ( event, currentTarget ) => {
+		useCallback( ( event ) => {
+			//TODO: pass through closest dropzone as part of signature.
+			const currentTarget = event.target.closest(
+				'[data-is-drop-zone="true"]'
+			);
 			const blockElements = Array.from( currentTarget.children ).filter(
 				// Ensure the element is a block. It should have the `wp-block` class.
 				( element ) => element.classList.contains( 'wp-block' )
@@ -118,9 +122,10 @@ export default function useBlockDropZone( {
 				getBlockListSettings( targetRootClientId )?.orientation
 			);
 
-			setTargetBlockIndex( targetIndex === undefined ? 0 : targetIndex );
-
 			if ( targetIndex !== null ) {
+				setTargetBlockIndex(
+					targetIndex === undefined ? 0 : targetIndex
+				);
 				showInsertionPoint( targetRootClientId, targetIndex );
 			}
 		}, [] ),
@@ -131,10 +136,8 @@ export default function useBlockDropZone( {
 		isDisabled: isLockedAll,
 		onDrop: onBlockDrop,
 		onDragOver( event ) {
-			// `currentTarget` is only available while the event is being
-			// handled, so get it now and pass it to the thottled function.
-			// https://developer.mozilla.org/en-US/docs/Web/API/Event/currentTarget
-			throttled( event, event.currentTarget );
+			//TODO: simplify further, with global handling we don't need event.currentTarget
+			throttled( event );
 		},
 		onDragLeave() {
 			throttled.cancel();

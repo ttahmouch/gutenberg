@@ -12,7 +12,7 @@ import useRefEffect from '../use-ref-effect';
 /**
  * External dependencies
  */
-import { throttle } from 'lodash';
+import { throttle, uniqueId } from 'lodash';
 
 /* eslint-disable jsdoc/valid-types */
 /**
@@ -35,17 +35,57 @@ function useFreshRef( value ) {
 	ref.current = value;
 	return ref;
 }
-//TODO: only add this detection once, find a good spot for reuse
+
+//TODO: just a proof of concept, we'd need to find a good spot for global handling / handler mapping
+const dropHandlers = new Map();
 const intentState = { x: null, y: null, isHovering: false };
-function isHovering( event ) {
+function dragover( event ) {
+	//needed to trigger a drop event
+	event.preventDefault();
 	const x = intentState?.x ?? event.clientX;
 	const y = intentState?.y ?? event.clientY;
 	intentState.x = event.clientX;
 	intentState.y = event.clientY;
 	intentState.isHovering =
 		Math.abs( event.clientY - y ) + Math.abs( event.clientX - x ) <= 5;
+	if ( intentState.isHovering ) {
+		const target = event.target?.dataset?.isDropZone
+			? event.target
+			: event.target.closest( '[data-is-drop-zone="true"]' );
+		const handlers = dropHandlers.get( target?.dataset?.dropId );
+		if ( target ) {
+			handlers?._onDragOver?.( event );
+		}
+	}
 }
-document.addEventListener( 'dragover', throttle( isHovering, 100 ) );
+document.addEventListener( 'dragover', dragover );
+function dragEnter( event ) {
+	const target = event.target?.dataset?.isDropZone
+		? event.target
+		: event.target.closest( '[data-is-drop-zone="true"]' );
+	if ( target ) {
+		//TODO: check if disabled
+		const handlers = dropHandlers.get( target?.dataset?.dropId );
+		//TODO: need to untangle actual user drag start from drag start from the perspective of seperate child element listeners.
+		handlers?._onDragStart?.( event );
+		handlers?._onDragEnter?.( event );
+	}
+}
+document.addEventListener( 'dragenter', dragEnter );
+//TODO: untangle, dragleave. find a better example than block moving
+
+//TODO: drop isn't passing correct insertion index (always null)
+function drop( event ) {
+	event.preventDefault();
+	const target = event.target?.dataset?.isDropZone
+		? event.target
+		: event.target.closest( '[data-is-drop-zone="true"]' );
+	if ( target ) {
+		const handlers = dropHandlers.get( target?.dataset?.dropId );
+		handlers?._onDrop( event );
+	}
+}
+document.addEventListener( 'drop', drop );
 
 /**
  * A hook to facilitate drag and drop handling.
@@ -229,24 +269,37 @@ export default function useDropZone( {
 				}
 			}
 
+			const dropId = uniqueId();
 			element.dataset.isDropZone = 'true';
-			element.addEventListener( 'drop', onDrop );
-			element.addEventListener( 'dragenter', onDragEnter );
-			element.addEventListener( 'dragover', onDragOver );
-			element.addEventListener( 'dragleave', onDragLeave );
+			element.dataset.dropId = `${ dropId }`;
+			dropHandlers.set( dropId, {
+				_onDrop,
+				_onDragStart,
+				_onDragEnter,
+				_onDragLeave,
+				_onDragEnd,
+				_onDragOver,
+			} );
+
+			// element.addEventListener( 'drop', onDrop );
+			// element.addEventListener( 'dragenter', onDragEnter );
+			// element.addEventListener( 'dragover', onDragOver );
+			// element.addEventListener( 'dragleave', onDragLeave );
 			// The `dragstart` event doesn't fire if the drag started outside
 			// the document.
-			ownerDocument.addEventListener( 'dragenter', maybeDragStart );
+			// ownerDocument.addEventListener( 'dragenter', maybeDragStart );
 
 			return () => {
 				delete element.dataset.isDropZone;
-				element.removeEventListener( 'drop', onDrop );
-				element.removeEventListener( 'dragenter', onDragEnter );
-				element.removeEventListener( 'dragover', onDragOver );
-				element.removeEventListener( 'dragleave', onDragLeave );
-				ownerDocument.removeEventListener( 'dragend', maybeDragEnd );
-				ownerDocument.removeEventListener( 'mousemove', maybeDragEnd );
-				ownerDocument.addEventListener( 'dragenter', maybeDragStart );
+				delete element.dataset.dropId;
+				dropHandlers.delete( dropId );
+				// element.removeEventListener( 'drop', onDrop );
+				// element.removeEventListener( 'dragenter', onDragEnter );
+				// element.removeEventListener( 'dragover', onDragOver );
+				// element.removeEventListener( 'dragleave', onDragLeave );
+				// ownerDocument.removeEventListener( 'dragend', maybeDragEnd );
+				// ownerDocument.removeEventListener( 'mousemove', maybeDragEnd );
+				// ownerDocument.addEventListener( 'dragenter', maybeDragStart );
 			};
 		},
 		[ isDisabled ]
