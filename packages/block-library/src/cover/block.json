@@ -51,6 +51,10 @@
 		},
 		"contentPosition": {
 			"type": "string"
+		},
+		"isDark": {
+			"type": "boolean",
+			"default": true
 		}
 	},
 	"supports": {
