@@ -12,7 +12,6 @@ import {
 	useConstrainedTabbing,
 } from '@wordpress/compose';
 import { useState, createPortal } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 import { ENTER, SPACE, ESCAPE } from '@wordpress/keycodes';
 import { focus } from '@wordpress/dom';
 
@@ -22,7 +21,7 @@ import { focus } from '@wordpress/dom';
 import Icon from '../icon';
 import StyleProvider from '../style-provider';
 
-function AdminShadow( { children } ) {
+function AdminShadow( { children, label } ) {
 	const [ shadow, setShadow ] = useState();
 	const [ hasFocus, setHasFocus ] = useState();
 	const ref = useRefEffect( ( element ) => {
@@ -54,7 +53,7 @@ function AdminShadow( { children } ) {
 			ref={ ref }
 			style={ { width: '100%' } }
 			tabIndex={ 0 }
-			aria-label={ __( 'Placeholder' ) }
+			aria-label={ label }
 			role="button"
 			onKeyDown={ ( event ) => {
 				if ( event.keyCode === ENTER || event.keyCode === SPACE ) {
@@ -127,11 +126,12 @@ function Placeholder( {
 		'is-column-layout': isColumnLayout,
 	} );
 	return (
-		<AdminShadow>
+		<AdminShadow label={ label }>
 			<div
 				{ ...additionalProps }
 				className={ classes }
 				role="dialog"
+				aria-label={ label }
 				ref={ useConstrainedTabbing() }
 			>
 				{ resizeListener }
