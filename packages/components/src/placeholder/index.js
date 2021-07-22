@@ -6,8 +6,15 @@ import classnames from 'classnames';
 /**
  * WordPress dependencies
  */
-import { useResizeObserver, useRefEffect } from '@wordpress/compose';
+import {
+	useResizeObserver,
+	useRefEffect,
+	useConstrainedTabbing,
+} from '@wordpress/compose';
 import { useState, createPortal } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { ENTER, SPACE, ESCAPE } from '@wordpress/keycodes';
+import { focus } from '@wordpress/dom';
 
 /**
  * Internal dependencies
@@ -17,6 +24,7 @@ import StyleProvider from '../style-provider';
 
 function AdminShadow( { children } ) {
 	const [ shadow, setShadow ] = useState();
+	const [ hasFocus, setHasFocus ] = useState();
 	const ref = useRefEffect( ( element ) => {
 		const root = element.attachShadow( { mode: 'open' } );
 		Array.from( document.styleSheets ).forEach( ( { ownerNode } ) => {
@@ -25,9 +33,41 @@ function AdminShadow( { children } ) {
 			}
 		} );
 		setShadow( root );
+
+		function onFocusIn() {
+			setHasFocus( true );
+		}
+
+		function onFocusOut() {
+			setHasFocus( false );
+		}
+
+		root.addEventListener( 'focusin', onFocusIn );
+		root.addEventListener( 'focusout', onFocusOut );
+		return () => {
+			root.addEventListener( 'focusin', onFocusIn );
+			root.addEventListener( 'focusout', onFocusOut );
+		};
 	}, [] );
 	return (
-		<div ref={ ref }>
+		<div
+			ref={ ref }
+			style={ { width: '100%' } }
+			tabIndex={ 0 }
+			aria-label={ __( 'Placeholder' ) }
+			role="button"
+			onKeyDown={ ( event ) => {
+				if ( event.keyCode === ENTER || event.keyCode === SPACE ) {
+					focus.focusable.find( shadow )[ 0 ].focus();
+					event.preventDefault();
+				} else if ( event.keyCode === ESCAPE ) {
+					shadow.host.focus();
+					event.preventDefault();
+					event.stopPropagation();
+				}
+			} }
+			aria-pressed={ hasFocus }
+		>
 			{ shadow &&
 				createPortal(
 					<StyleProvider document={ { head: shadow } }>
@@ -88,7 +128,12 @@ function Placeholder( {
 	} );
 	return (
 		<AdminShadow>
-			<div { ...additionalProps } className={ classes }>
+			<div
+				{ ...additionalProps }
+				className={ classes }
+				role="dialog"
+				ref={ useConstrainedTabbing() }
+			>
 				{ resizeListener }
 				{ notices }
 				{ preview && (
