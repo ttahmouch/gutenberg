@@ -4,7 +4,7 @@
  * External dependencies
  */
 import { View, Platform } from 'react-native';
-import { get, pickBy, debounce, isString } from 'lodash';
+import { get, pickBy, debounce } from 'lodash';
 import memize from 'memize';
 
 /**
@@ -15,7 +15,10 @@ import {
 	showUserSuggestions,
 	showXpostSuggestions,
 } from '@wordpress/react-native-bridge';
-import { BlockFormatControls } from '@wordpress/block-editor';
+import {
+	BlockFormatControls,
+	__experimentalGetFontSize as getBlockFontSize,
+} from '@wordpress/block-editor';
 import { Component } from '@wordpress/element';
 import { compose, withPreferredColorScheme } from '@wordpress/compose';
 import { withSelect } from '@wordpress/data';
@@ -56,6 +59,7 @@ const gutenbergFormatNamesToAztec = {
 };
 
 const EMPTY_PARAGRAPH_TAGS = '<p></p>';
+const DEFAULT_FONT_SIZE = 16;
 
 export class RichText extends Component {
 	constructor( {
@@ -77,6 +81,8 @@ export class RichText extends Component {
 		}
 
 		this.isIOS = Platform.OS === 'ios';
+
+		this.getFontSize = this.getFontSize.bind( this );
 		this.createRecord = this.createRecord.bind( this );
 		this.restoreParagraphTags = this.restoreParagraphTags.bind( this );
 		this.onChangeFromAztec = this.onChangeFromAztec.bind( this );
@@ -111,9 +117,6 @@ export class RichText extends Component {
 		).bind( this );
 		this.suggestionOptions = this.suggestionOptions.bind( this );
 		this.insertString = this.insertString.bind( this );
-		this.convertFontSizeFromString = this.convertFontSizeFromString.bind(
-			this
-		);
 		this.manipulateEventCounterToForceNativeToRefresh = this.manipulateEventCounterToForceNativeToRefresh.bind(
 			this
 		);
@@ -275,13 +278,6 @@ export class RichText extends Component {
 		return html
 			.replace( openingTagRegexp, '' )
 			.replace( closingTagRegexp, '' );
-	}
-
-	// Fix for crash https://github.com/wordpress-mobile/gutenberg-mobile/issues/2991
-	convertFontSizeFromString( fontSize ) {
-		return fontSize && isString( fontSize ) && fontSize.endsWith( 'px' )
-			? parseFloat( fontSize.substring( 0, fontSize.length - 2 ) )
-			: fontSize;
 	}
 
 	/*
@@ -719,7 +715,8 @@ export class RichText extends Component {
 		if (
 			nextProps.tagName !== this.props.tagName ||
 			nextProps.reversed !== this.props.reversed ||
-			nextProps.start !== this.props.start
+			nextProps.start !== this.props.start ||
+			nextProps.blockFontSize !== this.props.blockFontSize
 		) {
 			this.manipulateEventCounterToForceNativeToRefresh(); // force a refresh on the native side
 			this.value = undefined;
@@ -852,6 +849,22 @@ export class RichText extends Component {
 			className: 'rich-text',
 			onKeyDown: () => null,
 		};
+	}
+
+	getFontSize() {
+		if ( this.props.fontSize ) {
+			return parseFloat( this.props.fontSize );
+		}
+
+		if ( this.props.blockFontSize ) {
+			return parseFloat( this.props.blockFontSize );
+		}
+
+		if ( this.props.style.fontSize ) {
+			return parseFloat( this.props.style.fontSize );
+		}
+
+		return DEFAULT_FONT_SIZE;
 	}
 
 	render() {
@@ -1018,11 +1031,7 @@ export class RichText extends Component {
 					}
 					maxImagesWidth={ 200 }
 					fontFamily={ this.props.fontFamily || defaultFontFamily }
-					fontSize={
-						this.props.fontSize ||
-						( style &&
-							this.convertFontSizeFromString( style.fontSize ) )
-					}
+					fontSize={ this.getFontSize() }
 					fontWeight={ this.props.fontWeight }
 					fontStyle={ this.props.fontStyle }
 					disableEditingMenu={ disableEditingMenu }
@@ -1071,17 +1080,40 @@ const withFormatTypes = ( WrappedComponent ) => ( props ) => {
 
 export default compose( [
 	withSelect( ( select, { clientId } ) => {
-		const { getBlockParents, getBlock, getSettings } = select(
-			'core/block-editor'
-		);
+		const {
+			getBlockParents,
+			getBlock,
+			getSettings,
+			getBlockAttributes,
+		} = select( 'core/block-editor' );
 		const parents = getBlockParents( clientId, true );
 		const parentBlock = parents ? getBlock( parents[ 0 ] ) : undefined;
 		const parentBlockStyles = get( parentBlock, [
 			'attributes',
 			'childrenStyles',
 		] );
-		const baseGlobalStyles = getSettings()
-			?.__experimentalGlobalStylesBaseStyles;
+
+		const settings = getSettings();
+
+		const baseGlobalStyles = settings?.__experimentalGlobalStylesBaseStyles;
+		const fontSizes =
+			settings?.__experimentalFeatures?.typography?.fontSizes?.theme ??
+			settings.fontSizes ??
+			[];
+
+		const currentBlockAttributes = getBlockAttributes( clientId );
+		const blockFontSize = currentBlockAttributes?.fontSize;
+		const blockStyle = currentBlockAttributes?.style;
+
+		const fontSizeObject = getBlockFontSize(
+			fontSizes,
+			blockFontSize,
+			blockStyle?.typography?.fontSize
+		);
+		const blockFontSizeValue =
+			fontSizeObject?.size ||
+			blockStyle?.typography?.fontSize ||
+			blockFontSize;
 
 		return {
 			areMentionsSupported:
@@ -1089,6 +1121,7 @@ export default compose( [
 			areXPostsSupported: getSettings( 'capabilities' ).xposts === true,
 			...{ parentBlockStyles },
 			baseGlobalStyles,
+			blockFontSize: blockFontSizeValue,
 		};
 	} ),
 	withPreferredColorScheme,
