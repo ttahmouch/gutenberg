@@ -19,7 +19,6 @@ import {
 	store as blockEditorStore,
 } from '@wordpress/block-editor';
 import { useEffect, useRef, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 import { image as icon } from '@wordpress/icons';
 
 /* global wp */
@@ -287,14 +286,6 @@ export function ImageEdit( {
 
 	const isExternal = isExternalImage( id, url );
 	const src = isExternal ? url : undefined;
-	const mediaPreview = !! url && (
-		<img
-			alt={ __( 'Edit image' ) }
-			title={ __( 'Edit image' ) }
-			className={ 'edit-image-preview' }
-			src={ url }
-		/>
-	);
 
 	const classes = classnames( className, {
 		'is-transient': temporaryURL,
@@ -307,31 +298,8 @@ export function ImageEdit( {
 		className: classes,
 	} );
 
-	return (
-		<figure { ...blockProps }>
-			{ ( temporaryURL || url ) && (
-				<Image
-					temporaryURL={ temporaryURL }
-					attributes={ attributes }
-					setAttributes={ setAttributes }
-					isSelected={ isSelected }
-					insertBlocksAfter={ insertBlocksAfter }
-					onReplace={ onReplace }
-					onSelectImage={ onSelectImage }
-					onSelectURL={ onSelectURL }
-					onUploadError={ onUploadError }
-					containerRef={ ref }
-					clientId={ clientId }
-				/>
-			) }
-			{ ! url && (
-				<BlockControls group="block">
-					<BlockAlignmentControl
-						value={ align }
-						onChange={ updateAlignment }
-					/>
-				</BlockControls>
-			) }
+	if ( ! temporaryURL && ! url ) {
+		return (
 			<MediaPlaceholder
 				icon={ <BlockIcon icon={ icon } /> }
 				onSelect={ onSelectImage }
@@ -341,8 +309,39 @@ export function ImageEdit( {
 				accept="image/*"
 				allowedTypes={ ALLOWED_MEDIA_TYPES }
 				value={ { id, src } }
-				mediaPreview={ mediaPreview }
-				disableMediaButtons={ temporaryURL || url }
+				wrapperProps={ blockProps }
+			/>
+		);
+	}
+
+	return (
+		<figure { ...blockProps }>
+			<Image
+				temporaryURL={ temporaryURL }
+				attributes={ attributes }
+				setAttributes={ setAttributes }
+				isSelected={ isSelected }
+				insertBlocksAfter={ insertBlocksAfter }
+				onReplace={ onReplace }
+				onSelectImage={ onSelectImage }
+				onSelectURL={ onSelectURL }
+				onUploadError={ onUploadError }
+				containerRef={ ref }
+				clientId={ clientId }
+			/>
+			{ ! url && (
+				<BlockControls group="block">
+					<BlockAlignmentControl
+						value={ align }
+						onChange={ updateAlignment }
+					/>
+				</BlockControls>
+			) }
+			<MediaPlaceholder
+				onSelect={ onSelectImage }
+				onError={ onUploadError }
+				allowedTypes={ ALLOWED_MEDIA_TYPES }
+				disableMediaButtons={ true }
 			/>
 		</figure>
 	);

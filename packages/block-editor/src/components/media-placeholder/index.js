@@ -10,7 +10,6 @@ import classnames from 'classnames';
 import {
 	Button,
 	FormFileUpload,
-	Placeholder,
 	DropZone,
 	withFilters,
 } from '@wordpress/components';
@@ -23,6 +22,7 @@ import { keyboardReturn } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
+import Placeholder from '../placeholder';
 import MediaUpload from '../media-upload';
 import MediaUploadCheck from '../media-upload/check';
 import URLPopover from '../url-popover';
@@ -75,6 +75,7 @@ export function MediaPlaceholder( {
 	onFilesPreUpload = noop,
 	onHTMLDrop = noop,
 	children,
+	wrapperProps,
 } ) {
 	const mediaUpload = useSelect( ( select ) => {
 		const { getSettings } = select( blockEditorStore );
@@ -243,6 +244,7 @@ export function MediaPlaceholder( {
 				onClick={ onClick }
 				onDoubleClick={ onDoubleClick }
 				preview={ mediaPreview }
+				wrapperProps={ wrapperProps }
 			>
 				{ content }
 				{ children }
