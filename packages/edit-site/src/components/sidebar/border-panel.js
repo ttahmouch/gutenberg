@@ -7,7 +7,8 @@ import {
 	__experimentalColorGradientControl as ColorGradientControl,
 } from '@wordpress/block-editor';
 import {
-	PanelBody,
+	__experimentalProgressiveDisclosurePanel as ProgressiveDisclosurePanel,
+	__experimentalProgressiveDisclosurePanelItem as ProgressiveDisclosurePanelItem,
 	__experimentalUnitControl as UnitControl,
 	__experimentalUseCustomUnits as useCustomUnits,
 } from '@wordpress/components';
@@ -73,74 +74,119 @@ export default function BorderPanel( {
 	} );
 
 	// Border width.
-	const hasBorderWidth = useHasBorderWidthControl( { supports, name } );
-	const borderWidthValue = getStyle( name, 'borderWidth' );
+	const showBorderWidth = useHasBorderWidthControl( { supports, name } );
+	const borderWidth = getStyle( name, 'borderWidth' );
+	const resetBorderWidth = () => setStyle( name, 'borderWidth', undefined );
+	const hasBorderWidth = () => !! borderWidth;
 
 	// Border style.
-	const hasBorderStyle = useHasBorderStyleControl( { supports, name } );
+	const showBorderStyle = useHasBorderStyleControl( { supports, name } );
 	const borderStyle = getStyle( name, 'borderStyle' );
+	const resetBorderStyle = () => setStyle( name, 'borderStyle', undefined );
+	const hasBorderStyle = () => !! borderStyle;
 
 	// Border color.
 	const colors = useSetting( 'color.palette' ) || EMPTY_ARRAY;
 	const disableCustomColors = ! useSetting( 'color.custom' );
 	const disableCustomGradients = ! useSetting( 'color.customGradient' );
-	const hasBorderColor = useHasBorderColorControl( { supports, name } );
+	const showBorderColor = useHasBorderColorControl( { supports, name } );
 	const borderColor = getStyle( name, 'borderColor' );
+	const resetBorderColor = () => setStyle( name, 'borderColor', undefined );
+	const hasBorderColor = () => !! borderColor;
 
 	// Border radius.
-	const hasBorderRadius = useHasBorderRadiusControl( { supports, name } );
-	const borderRadiusValues = getStyle( name, 'borderRadius' );
+	const showBorderRadius = useHasBorderRadiusControl( { supports, name } );
+	const borderRadius = getStyle( name, 'borderRadius' );
+	const resetBorderRadius = () => setStyle( name, 'borderRadius', undefined );
+	const hasBorderRadius = () => {
+		if ( typeof borderRadius === 'object' ) {
+			return Object.entries( borderRadius ).some( Boolean );
+		}
+
+		return !! borderRadius;
+	};
+
+	const resetAll = () => {
+		resetBorderColor();
+		resetBorderRadius();
+		resetBorderStyle();
+		resetBorderWidth();
+	};
 
 	return (
-		<PanelBody title={ __( 'Border' ) } initialOpen={ true }>
-			{ ( hasBorderWidth || hasBorderStyle ) && (
-				<div className="edit-site-global-styles-sidebar__border-controls-row">
-					{ hasBorderWidth && (
-						<UnitControl
-							value={ borderWidthValue }
-							label={ __( 'Width' ) }
-							min={ MIN_BORDER_WIDTH }
-							onChange={ ( value ) => {
-								setStyle(
-									name,
-									'borderWidth',
-									value || undefined
-								);
-							} }
-							units={ units }
-						/>
-					) }
-					{ hasBorderStyle && (
-						<BorderStyleControl
-							value={ borderStyle }
-							onChange={ ( value ) =>
-								setStyle( name, 'borderStyle', value )
-							}
-						/>
-					) }
-				</div>
+		<ProgressiveDisclosurePanel
+			label={ __( 'Border options' ) }
+			title={ __( 'Border' ) }
+			resetAll={ resetAll }
+		>
+			{ showBorderWidth && (
+				<ProgressiveDisclosurePanelItem
+					hasValue={ hasBorderWidth }
+					label={ __( 'Width' ) }
+					onDeselect={ resetBorderWidth }
+					isShownByDefault={ true }
+				>
+					<UnitControl
+						value={ borderWidth }
+						label={ __( 'Width' ) }
+						min={ MIN_BORDER_WIDTH }
+						onChange={ ( value ) => {
+							setStyle( name, 'borderWidth', value || undefined );
+						} }
+						units={ units }
+					/>
+				</ProgressiveDisclosurePanelItem>
 			) }
-			{ hasBorderColor && (
-				<ColorGradientControl
+			{ showBorderStyle && (
+				<ProgressiveDisclosurePanelItem
+					hasValue={ hasBorderStyle }
+					label={ __( 'Style' ) }
+					onDeselect={ resetBorderStyle }
+					isShownByDefault={ true }
+				>
+					<BorderStyleControl
+						value={ borderStyle }
+						onChange={ ( value ) =>
+							setStyle( name, 'borderStyle', value )
+						}
+					/>
+				</ProgressiveDisclosurePanelItem>
+			) }
+			{ showBorderColor && (
+				<ProgressiveDisclosurePanelItem
+					hasValue={ hasBorderColor }
 					label={ __( 'Color' ) }
-					value={ borderColor }
-					colors={ colors }
-					gradients={ undefined }
-					disableCustomColors={ disableCustomColors }
-					disableCustomGradients={ disableCustomGradients }
-					onColorChange={ ( value ) =>
-						setStyle( name, 'borderColor', value )
-					}
-				/>
+					onDeselect={ resetBorderColor }
+					isShownByDefault={ true }
+				>
+					<ColorGradientControl
+						label={ __( 'Color' ) }
+						value={ borderColor }
+						colors={ colors }
+						gradients={ undefined }
+						disableCustomColors={ disableCustomColors }
+						disableCustomGradients={ disableCustomGradients }
+						onColorChange={ ( value ) =>
+							setStyle( name, 'borderColor', value )
+						}
+					/>
+				</ProgressiveDisclosurePanelItem>
 			) }
-			{ hasBorderRadius && (
-				<BorderRadiusControl
-					values={ borderRadiusValues }
-					onChange={ ( value ) =>
-						setStyle( name, 'borderRadius', value )
-					}
-				/>
+			{ showBorderRadius && (
+				<ProgressiveDisclosurePanelItem
+					hasValue={ hasBorderRadius }
+					label={ __( 'Radius' ) }
+					onDeselect={ resetBorderRadius }
+					isShownByDefault={ true }
+				>
+					<BorderRadiusControl
+						values={ borderRadius }
+						onChange={ ( value ) =>
+							setStyle( name, 'borderRadius', value )
+						}
+					/>
+				</ProgressiveDisclosurePanelItem>
 			) }
-		</PanelBody>
+		</ProgressiveDisclosurePanel>
 	);
 }
