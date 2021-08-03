@@ -177,6 +177,16 @@ function LinkControl( {
 	}, [ isEditingLink ] );
 
 	/**
+	 * If the value's `text` property changes then sync this
+	 * back up with state.
+	 */
+	useEffect( () => {
+		if ( value.text !== internalTextValue ) {
+			setInternalTextValue( value.text );
+		}
+	}, [ value ] );
+
+	/**
 	 * Cancels editing state and marks that focus may need to be restored after
 	 * the next render, if focus was within the wrapper when editing finished.
 	 */
@@ -207,7 +217,6 @@ function LinkControl( {
 				text: internalTextValue,
 			} );
 		}
-		setInternalTextValue( value.text );
 		stopEditing();
 	};
 
@@ -215,6 +224,9 @@ function LinkControl( {
 		onRemove && value && ! isEditingLink && ! isCreatingPage;
 
 	const showSettingsDrawer = !! settings?.length;
+
+	// Only show once a URL value has been committed.
+	const showTextControl = hasTextControl && currentValueUrl;
 
 	return (
 		<div
@@ -233,10 +245,10 @@ function LinkControl( {
 					<div
 						className={ classnames( {
 							'block-editor-link-control__search-input-wrapper': true,
-							'has-text-control': hasTextControl,
+							'has-text-control': showTextControl,
 						} ) }
 					>
-						{ hasTextControl && currentValueUrl && (
+						{ showTextControl && (
 							<TextControl
 								className="block-editor-link-control__field block-editor-link-control__text-content"
 								label="Text"
