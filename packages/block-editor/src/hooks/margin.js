@@ -64,6 +64,9 @@ export function MarginEdit( props ) {
 		],
 	} );
 	const sides = useCustomSides( blockName, 'margin' );
+	const splitOnAxis =
+		sides &&
+		( sides.includes( 'horizontal' ) || sides.includes( 'vertical' ) );
 
 	if ( useIsMarginDisabled( props ) ) {
 		return null;
@@ -106,6 +109,7 @@ export function MarginEdit( props ) {
 					label={ __( 'Margin' ) }
 					sides={ sides }
 					units={ units }
+					splitOnAxis={ splitOnAxis }
 				/>
 			</>
 		),
