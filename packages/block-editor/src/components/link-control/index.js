@@ -200,7 +200,10 @@ function LinkControl( {
 	);
 
 	const handleSelectSuggestion = ( updatedValue ) => {
-		onChange( updatedValue );
+		onChange( {
+			...updatedValue,
+			text: internalTextValue,
+		} );
 		stopEditing();
 	};
 
