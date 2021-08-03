@@ -105,10 +105,8 @@ import { DEFAULT_LINK_SETTINGS } from './constants';
 function LinkControl( {
 	searchInputPlaceholder,
 	value,
-	text = '',
 	settings = DEFAULT_LINK_SETTINGS,
 	onChange = noop,
-	onTextChange = noop,
 	onRemove,
 	noDirectEntry = false,
 	showSuggestions = true,
@@ -121,6 +119,7 @@ function LinkControl( {
 	noURLSuggestion = false,
 	createSuggestionButtonText,
 	hasRichPreviews = false,
+	hasTextControl = false,
 } ) {
 	if ( withCreateSuggestion === undefined && createSuggestion ) {
 		withCreateSuggestion = true;
@@ -128,8 +127,12 @@ function LinkControl( {
 
 	const isMounting = useRef( true );
 	const wrapperNode = useRef();
+
 	const [ internalInputValue, setInternalInputValue ] = useState(
 		( value && value.url ) || ''
+	);
+	const [ internalTextValue, setInternalTextValue ] = useState(
+		( value && value.text ) || ''
 	);
 	const currentInputValue = propInputValue || internalInputValue;
 	const [ isEditingLink, setIsEditingLink ] = useState(
@@ -187,8 +190,14 @@ function LinkControl( {
 	};
 
 	const handleSubmitButton = () => {
-		if ( currentInputValue !== value?.url ) {
-			onChange( { url: currentInputValue } );
+		if (
+			currentInputValue !== value?.url ||
+			internalTextValue !== value?.text
+		) {
+			onChange( {
+				url: currentInputValue,
+				text: internalTextValue,
+			} );
 		}
 		stopEditing();
 	};
@@ -213,14 +222,15 @@ function LinkControl( {
 			{ ( isEditingLink || ! value ) && ! isCreatingPage && (
 				<>
 					<div className="block-editor-link-control__search-input-wrapper">
-						{ text && onTextChange && (
+						{ hasTextControl && (
 							<TextControl
 								className="block-editor-link-control__field block-editor-link-control__text-content"
 								label="Text"
-								value={ text }
-								onChange={ onTextChange }
+								value={ internalTextValue }
+								onChange={ setInternalTextValue }
 							/>
 						) }
+
 						<LinkControlSearchInput
 							currentLink={ value }
 							className="block-editor-link-control__field block-editor-link-control__search-input"
