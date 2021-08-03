@@ -104,12 +104,12 @@ const style = `
 
 function Sandbox( {
 	html = '',
+	lang = 'en',
 	providerUrl = '',
 	scripts = [],
 	styles = [],
 	title = '',
 	type,
-	lang = 'en',
 } ) {
 	const ref = useRef();
 	const [ width, setWidth ] = useState( 0 );
