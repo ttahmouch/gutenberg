@@ -64,6 +64,9 @@ export function PaddingEdit( props ) {
 		],
 	} );
 	const sides = useCustomSides( blockName, 'padding' );
+	const splitOnAxis =
+		sides &&
+		( sides.includes( 'horizontal' ) || sides.includes( 'vertical' ) );
 
 	if ( useIsPaddingDisabled( props ) ) {
 		return null;
@@ -106,6 +109,7 @@ export function PaddingEdit( props ) {
 					label={ __( 'Padding' ) }
 					sides={ sides }
 					units={ units }
+					splitOnAxis={ splitOnAxis }
 				/>
 			</>
 		),
