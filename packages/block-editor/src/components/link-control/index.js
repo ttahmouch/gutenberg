@@ -127,6 +127,7 @@ function LinkControl( {
 
 	const isMounting = useRef( true );
 	const wrapperNode = useRef();
+	const currentValueUrl = !! value?.url;
 
 	const [ internalInputValue, setInternalInputValue ] = useState(
 		( value && value.url ) || ''
@@ -223,7 +224,7 @@ function LinkControl( {
 			{ ( isEditingLink || ! value ) && ! isCreatingPage && (
 				<>
 					<div className="block-editor-link-control__search-input-wrapper">
-						{ hasTextControl && (
+						{ hasTextControl && currentValueUrl && (
 							<TextControl
 								className="block-editor-link-control__field block-editor-link-control__text-content"
 								label="Text"
