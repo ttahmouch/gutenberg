@@ -129,13 +129,11 @@ function LinkControl( {
 	const isMounting = useRef( true );
 	const wrapperNode = useRef();
 
-	const currentValueUrl = !! value?.url;
-
 	const [ internalInputValue, setInternalInputValue ] = useState(
-		( value && value.url ) || ''
+		value?.url || ''
 	);
 	const [ internalTextValue, setInternalTextValue ] = useState(
-		( value && value.text ) || ''
+		value?.text || ''
 	);
 	const currentInputValue = propInputValue || internalInputValue;
 	const [ isEditingLink, setIsEditingLink ] = useState(
@@ -164,7 +162,6 @@ function LinkControl( {
 
 		// When editing, the 2nd focusable element is the Link URL input.
 		const whichFocusTarget = isEditingLink ? linkURLInputIndex : 0;
-
 		// When switching between editable and non editable LinkControl
 		// move focus to the most appropriate element to avoid focus loss.
 		const nextFocusTarget =
@@ -181,7 +178,7 @@ function LinkControl( {
 	 * back up with state.
 	 */
 	useEffect( () => {
-		if ( value.text !== internalTextValue ) {
+		if ( value?.text && value.text !== internalTextValue ) {
 			setInternalTextValue( value.text );
 		}
 	}, [ value ] );
@@ -226,7 +223,7 @@ function LinkControl( {
 	const showSettingsDrawer = !! settings?.length;
 
 	// Only show once a URL value has been committed.
-	const showTextControl = hasTextControl && currentValueUrl;
+	const showTextControl = hasTextControl;
 
 	return (
 		<div
