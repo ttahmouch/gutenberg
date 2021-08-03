@@ -199,6 +199,7 @@ function LinkControl( {
 				text: internalTextValue,
 			} );
 		}
+		setInternalTextValue( value.text );
 		stopEditing();
 	};
 
