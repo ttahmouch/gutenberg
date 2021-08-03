@@ -690,6 +690,10 @@ export default function NavigationLinkEdit( {
 										attributes
 									)
 								}
+								text={ label }
+								onTextChange={ ( labelValue ) =>
+									setAttributes( { label: labelValue } )
+								}
 							/>
 						</Popover>
 					) }
