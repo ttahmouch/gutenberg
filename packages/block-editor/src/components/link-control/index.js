@@ -128,7 +128,7 @@ function LinkControl( {
 
 	const isMounting = useRef( true );
 	const wrapperNode = useRef();
-	const linkUrlInput = useRef();
+
 	const currentValueUrl = !! value?.url;
 
 	const [ internalInputValue, setInternalInputValue ] = useState(
@@ -160,20 +160,16 @@ function LinkControl( {
 			return;
 		}
 
-		// const whichFocus = isEditingLink ? 1 : 0;
-		let nextFocusTarget;
+		const linkURLInputIndex = 1;
+
+		// When editing, the 2nd focusable element is the Link URL input.
+		const whichFocusTarget = isEditingLink ? linkURLInputIndex : 0;
 
 		// When switching between editable and non editable LinkControl
 		// move focus to the most appropriate element to avoid focus loss.
-		if ( isEditingLink ) {
-			// Give priority to the input that controls the link URL value.
-			nextFocusTarget = linkUrlInput.current;
-		} else {
-			// Find the first focusable element.
-			nextFocusTarget =
-				focus.focusable.find( wrapperNode.current )[ 0 ] ||
-				wrapperNode.current;
-		}
+		const nextFocusTarget =
+			focus.focusable.find( wrapperNode.current )[ whichFocusTarget ] ||
+			wrapperNode.current;
 
 		nextFocusTarget.focus();
 
@@ -250,7 +246,6 @@ function LinkControl( {
 						) }
 
 						<LinkControlSearchInput
-							ref={ linkUrlInput }
 							currentLink={ value }
 							className="block-editor-link-control__field block-editor-link-control__search-input"
 							placeholder={ searchInputPlaceholder }
