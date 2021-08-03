@@ -6,7 +6,7 @@ import { noop } from 'lodash';
 /**
  * WordPress dependencies
  */
-import { Button, Spinner, Notice } from '@wordpress/components';
+import { Button, Spinner, Notice, TextControl } from '@wordpress/components';
 import { keyboardReturn } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 import { useRef, useState, useEffect } from '@wordpress/element';
@@ -105,8 +105,10 @@ import { DEFAULT_LINK_SETTINGS } from './constants';
 function LinkControl( {
 	searchInputPlaceholder,
 	value,
+	text = '',
 	settings = DEFAULT_LINK_SETTINGS,
 	onChange = noop,
+	onTextChange = noop,
 	onRemove,
 	noDirectEntry = false,
 	showSuggestions = true,
@@ -211,9 +213,17 @@ function LinkControl( {
 			{ ( isEditingLink || ! value ) && ! isCreatingPage && (
 				<>
 					<div className="block-editor-link-control__search-input-wrapper">
+						{ text && onTextChange && (
+							<TextControl
+								className="block-editor-link-control__field block-editor-link-control__text-content"
+								label="Text"
+								value={ text }
+								onChange={ onTextChange }
+							/>
+						) }
 						<LinkControlSearchInput
 							currentLink={ value }
-							className="block-editor-link-control__search-input"
+							className="block-editor-link-control__field block-editor-link-control__search-input"
 							placeholder={ searchInputPlaceholder }
 							value={ currentInputValue }
 							withCreateSuggestion={ withCreateSuggestion }
