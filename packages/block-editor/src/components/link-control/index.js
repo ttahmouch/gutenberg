@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { noop } from 'lodash';
+import classnames from 'classnames';
 
 /**
  * WordPress dependencies
@@ -223,7 +224,12 @@ function LinkControl( {
 
 			{ ( isEditingLink || ! value ) && ! isCreatingPage && (
 				<>
-					<div className="block-editor-link-control__search-input-wrapper">
+					<div
+						className={ classnames( {
+							'block-editor-link-control__search-input-wrapper': true,
+							'has-text-control': hasTextControl,
+						} ) }
+					>
 						{ hasTextControl && currentValueUrl && (
 							<TextControl
 								className="block-editor-link-control__field block-editor-link-control__text-content"
