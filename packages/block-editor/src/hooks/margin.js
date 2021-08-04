@@ -17,7 +17,7 @@ import {
 	AXIAL_SIDES,
 	SPACING_SUPPORT_KEY,
 	useCustomSides,
-	useIsSpacingSupportValid,
+	useIsSpacingConfigurationValid,
 } from './spacing';
 import { cleanEmptyObject } from './utils';
 
@@ -42,7 +42,7 @@ export function hasMarginSupport( blockType ) {
  */
 export function useIsMarginDisabled( { name: blockName } = {} ) {
 	const isDisabled = ! useSetting( 'spacing.customMargin' );
-	const isInvalid = ! useIsSpacingSupportValid( blockName, 'margin' );
+	const isInvalid = ! useIsSpacingConfigurationValid( blockName, 'margin' );
 
 	return ! hasMarginSupport( blockName ) || isDisabled || isInvalid;
 }

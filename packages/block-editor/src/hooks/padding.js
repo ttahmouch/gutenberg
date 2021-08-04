@@ -17,7 +17,7 @@ import {
 	AXIAL_SIDES,
 	SPACING_SUPPORT_KEY,
 	useCustomSides,
-	useIsSpacingSupportValid,
+	useIsSpacingConfigurationValid,
 } from './spacing';
 import { cleanEmptyObject } from './utils';
 
@@ -42,7 +42,7 @@ export function hasPaddingSupport( blockType ) {
  */
 export function useIsPaddingDisabled( { name: blockName } = {} ) {
 	const isDisabled = ! useSetting( 'spacing.customPadding' );
-	const isInvalid = ! useIsSpacingSupportValid( blockName, 'padding' );
+	const isInvalid = ! useIsSpacingConfigurationValid( blockName, 'padding' );
 
 	return ! hasPaddingSupport( blockName ) || isDisabled || isInvalid;
 }
